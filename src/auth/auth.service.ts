@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { scrypt as _scrypt, randomBytes } from 'crypto';
 import { promisify } from 'util';
 
@@ -8,6 +9,8 @@ const users = [];
 
 @Injectable()
 export class AuthService {
+  constructor(private readonly jwtService: JwtService) { }
+
   async signUp(email: string, password: string) {
 
     const existingUser = users.find(user => user.email === email);
@@ -50,10 +53,8 @@ export class AuthService {
     }
 
     console.log('Signed in', user);
+    const payload = { username: user.email, sub: user.userId };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...result } = user;
-
-    return result;
+    return { accessToken: this.jwtService.sign(payload) };
   }
 }
