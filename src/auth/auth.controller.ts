@@ -12,4 +12,10 @@ export class AuthController {
     const { email, password } = body;
     return this.authService.signUp(email, password)
   }
+
+  @Post('signin')
+  signIn(@Body() body: any) {
+    const { email, password } = body;
+    return this.authService.signIn(email, password)
+  }
 }

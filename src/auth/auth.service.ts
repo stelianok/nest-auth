@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { scrypt as _scrypt, randomBytes } from 'crypto';
 import { promisify } from 'util';
 
@@ -35,4 +35,25 @@ export class AuthService {
     return result;
   }
 
+  async signIn(email: string, password: string) {
+    const user = users.find((user) => user.email === email);
+
+    if (!user) {
+      return new UnauthorizedException('Invalid credentials');
+    }
+
+    const [salt, storedHash] = user.password.split('.');
+    const hash = (await scrypt(password, salt, 32)) as Buffer;
+
+    if (storedHash != hash.toString('hex')) {
+      return new UnauthorizedException('Invalid credentials');
+    }
+
+    console.log('Signed in', user);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...result } = user;
+
+    return result;
+  }
 }
