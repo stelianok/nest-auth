@@ -8,6 +8,7 @@ import { promisify } from 'util';
 const scrypt = promisify(_scrypt);
 
 const users = [];
+const refreshTokens = [];
 
 @Injectable()
 export class AuthService {
@@ -70,12 +71,20 @@ export class AuthService {
       { expiresIn: '1h' }
     )
 
-    user.refreshToken = refreshToken;
+    refreshTokens.push({ value: refreshToken });
 
     return { accessToken, refreshToken };
   }
 
   async refresh(refreshToken: string) {
+    const storedToken = refreshTokens.find(
+      (token) => token.value === refreshToken,
+    );
+
+    if (!storedToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
     const payload = this.jwtService.verify(refreshToken);
 
     if (payload.type !== 'refresh') {
@@ -83,7 +92,7 @@ export class AuthService {
     }
 
     const user = users.find(
-      (user) => user.id === payload.sub && user.refreshToken === refreshToken)
+      (user) => user.id === payload.sub)
 
     if (!user) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -105,8 +114,8 @@ export class AuthService {
       { expiresIn: '1h' }
     )
 
-    user.refreshToken = newRefreshToken;
+    storedToken.value = newRefreshToken;
 
-    return { newAccessToken, newRefreshToken };
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }
 }
