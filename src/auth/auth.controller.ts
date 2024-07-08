@@ -18,4 +18,11 @@ export class AuthController {
     const { email, password } = body;
     return this.authService.signIn(email, password)
   }
+
+  @Post('refresh')
+  refresh(@Body() body: any) {
+    const { refreshToken } = body;
+
+    return this.authService.refresh(refreshToken)
+  }
 }
