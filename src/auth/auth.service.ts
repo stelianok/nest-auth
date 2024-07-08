@@ -11,7 +11,7 @@ const users = [];
 export class AuthService {
   constructor(private readonly jwtService: JwtService) { }
 
-  async signUp(email: string, password: string) {
+  async signUp(email: string, password: string, roles: string[] = []) {
 
     const existingUser = users.find(user => user.email === email);
 
@@ -25,7 +25,8 @@ export class AuthService {
 
     const user = {
       email,
-      password: saltAndHash
+      password: saltAndHash,
+      roles,
     };
 
     users.push(user);
@@ -53,7 +54,7 @@ export class AuthService {
     }
 
     console.log('Signed in', user);
-    const payload = { username: user.email, sub: user.userId };
+    const payload = { username: user.email, sub: user.userId, roles: user.roles };
 
     return { accessToken: this.jwtService.sign(payload) };
   }

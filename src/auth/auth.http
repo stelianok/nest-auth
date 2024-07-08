@@ -4,10 +4,11 @@ Content-Type: application/json
 
 {
   "email": "test@acme.com",
-  "password": "test"
+  "password": "test",
+  "roles": []
 }
 
-### signup
+### signin
 POST http://localhost:3000/auth/signin
 Content-Type: application/json
 
